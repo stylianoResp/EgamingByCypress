@@ -63,6 +63,7 @@ const newCustomerDataStep1 = (shouldFillAllData = false, shouldProvideInvalidDat
         cy.contains('Create an account');
         cy.contains('Sign up and start playing in less than 60 seconds.');
         cy.contains('I am over 18 years old and I accept the Terms and conditions and privacy policy');
+        cy.get('select[id="form.country_id"]').select('Cyprus')     
 
         if (shouldFillAllData) {
             //fill and check , invoke to a json the email data
