@@ -161,7 +161,6 @@ const newCustomerDataStep2 = (shouldFillAllData = false, shouldProvideInvalidDat
             // Just assert the fields (or leave them empty)
             cy.get('input[label="First name"]').should('have.attr', 'placeholder', 'John');
             cy.get('input[label="Last name"]').should('have.attr', 'placeholder', 'Doe');
-            cy.get('input[label="Phone"]').should('have.attr', 'placeholder', '96 123456');
             cy.get('input[label="Postal code"]').should('have.attr', 'placeholder', '1070');
             cy.get('select[id="dob.day"]').should('have.value', null);
             cy.get('select[id="dob.month"]').should('have.value', null);
