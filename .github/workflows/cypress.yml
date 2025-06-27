@@ -26,6 +26,6 @@ jobs:
         with:
           name: selected-fixtures
           path: |
-            cypress/fixtures/output1.json
+            cypress/fixtures/validationResults.json
 
 
