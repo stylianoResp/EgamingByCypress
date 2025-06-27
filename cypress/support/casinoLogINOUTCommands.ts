@@ -74,6 +74,7 @@ const logIn = (logInType:string): void => {
 
 //logOut Command
 const logOut = () => {
+    cy.wait(10000)
     cy.get('.header__user-avatar').should('be.visible').click()
     //why adding here cleare cookies - cypress is getting confused once trying to logout - searching for token json 
     //The backend is returning an HTML page
