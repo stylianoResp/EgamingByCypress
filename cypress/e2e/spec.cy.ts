@@ -23,8 +23,6 @@ brands.forEach((brand) => {
       cy.clearAllCookies();
       cy.clearAllLocalStorage();
       cy.clearAllSessionStorage();
-      // Clean validation results before each test
-      cy.writeFile('cypress/fixtures/validationResults.json', { validationResults: [] });
     })
 
     it('Validation State for Sign-Up Fields(Empty Fields)', () => {
