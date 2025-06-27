@@ -30,12 +30,11 @@ brands.forEach((brand) => {
       cy.signUpForm('areEmptyData')
         cy.readFile('cypress/fixtures/emtpyFieldsMessageAllEmpty.json').then((data) => {
           const emptyFieldsMessage = data.message;
-          cy.writeFile('cypress/fixtures/validationResults.json', data, { flag: 'a+' }).then(() => {
+          cy.writeFile('cypress/fixtures/validationResults.json', emptyFieldsMessage, { flag: 'a+' }).then(() => {
             cy.log(`Validation result for ${brand.name} - Empty Fields: ${emptyFieldsMessage}`);
           });
         });
       })
-    })
 
     it('Validation State for Sign-Up Fields(Invalid Fields in Step 1)', () => {
       cy.visitCasino(brand.url)
