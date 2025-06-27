@@ -20,3 +20,12 @@ jobs:
 
       - name: Run Cypress tests without starting a server
         run: npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+
+      - name: Upload selected fixture files
+        uses: actions/upload-artifact@v4
+        with:
+          name: selected-fixtures
+          path: |
+            cypress/fixtures/output1.json
+
+

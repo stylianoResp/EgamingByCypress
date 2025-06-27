@@ -3,6 +3,7 @@ import { defineConfig } from 'cypress';
 export default defineConfig({
   e2e: {
     projectId: "x2tbrq",
+    video: true,
     experimentalStudio: true,
     supportFile: 'cypress/support/index.ts',
     viewportWidth: 1440,

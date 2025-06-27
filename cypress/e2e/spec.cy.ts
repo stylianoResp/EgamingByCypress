@@ -23,11 +23,27 @@ brands.forEach((brand) => {
       cy.clearAllCookies();
       cy.clearAllLocalStorage();
       cy.clearAllSessionStorage();
+      // Clean validation results before each test
+      cy.writeFile('cypress/fixtures/validationResults.json', { validationResults: [] });
     })
 
     it('Validation State for Sign-Up Fields(Empty Fields)', () => {
       cy.visitCasino(brand.url)
       cy.signUpForm('areEmptyData')
+      // Save validation result after test
+      cy.readFile('cypress/fixtures/validationResults.json').then((data) => {
+        data.validationResults.push({
+          brand: brand.name,
+          test: 'Empty Fields',
+          timestamp: new Date().toISOString(),
+        });
+        cy.readFile('cypress/fixtures/emtpyFieldsMessageAllEmpty.json').then((data) => {
+          const emptyFieldsMessage = data.message;
+          cy.writeFile('cypress/fixtures/validationResults.json', data, { flag: 'a+' }).then(() => {
+            cy.log(`Validation result for ${brand.name} - Empty Fields: ${emptyFieldsMessage}`);
+          });
+        });
+      })
     })
 
     it('Validation State for Sign-Up Fields(Invalid Fields in Step 1)', () => {
