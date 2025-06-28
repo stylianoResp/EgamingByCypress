@@ -1,10 +1,11 @@
 /// <reference types="cypress" />
+// This file contains custom Cypress commands for logging in and logging out users.
+// It uses fixture files to retrieve user credentials generated during registration.
+
 import {enviroments} from './dataFile'
 
-// This line enables Cypress auto-completion and types in your editor.
-
+// Helper: Click the "Log in" button and ensure the login modal is visible
 const logInButton = () => {
-
     cy.get('.header__right')
         .contains('Log in')
         .should('be.visible')
@@ -13,84 +14,79 @@ const logInButton = () => {
     cy.get('.modal-authentication > .modal__dialog > .modal__content').should('be.visible')
 }
 
+// Helper: Fill in login credentials
+// - If itsInvalidPassword is true, use a hardcoded invalid password
+// - Otherwise, use the password from the registration fixture
 const logInCredentials = (itsInvalidPassword = false) => {
     cy.get('.flex-grow').should('be.visible').within(() => {
-
-        //add the credentials of the user from the invoke jason files during the registration 
+        // Read email from fixture file generated during registration
         cy.readFile('cypress/fixtures/randomEmail.json').then((email) => {
-            //store it in a string variable
             const credentialsEmail = email.userEmail.toString()
             cy.get('#emailLogin').should('be.empty').type(credentialsEmail)
         })
-        //codition if itsInvalidPassword = true to provide wrong hardcoded password
+        // If testing invalid password, use a hardcoded value
         if (itsInvalidPassword) {
             cy.get('#passwordLogin').should('be.empty').type('1234')
         }
         else {
+            // Otherwise, use the password from the registration fixture
             cy.readFile('cypress/fixtures/randomPassword.json').then((password) => {
-                //store it in a string variable
                 const credentialsPassword = password.userPassword.toString()
                 cy.get('#passwordLogin').should('be.empty').type(credentialsPassword)
             })
         }
-
-        //intercept the api Post which is asserting the succesfull registration 
+        // Intercept login API call for assertion
         cy.intercept('POST', '/livewire/update').as('livewireUpdate');
-        //click on Log In Button
+        // Click the Log In button
         cy.get('button[type="submit"]').contains('Log in').click()
-        //wait  for the api 
+        // Wait for the API response and assert status
         cy.wait('@livewireUpdate', { timeout: 7000 }).then((interception) => {
             expect([200, 302]).to.include(interception.response?.statusCode);
         })
-
     })
 }
 
+// Main logIn command
+// Accepts a logInType string to determine which scenario to run
 const logIn = (logInType:string): void => {
-
     switch (logInType) {
         case 'areInvalidCredentials':
+            // Attempt login with invalid password
             logInButton()
             logInCredentials(true)
-             //capture the error message alert
-             cy.get('.gap-y-2').invoke('text').then((text) => {
-
-                //create a string variable to add the text,edit the text with space after any . or !
+            // Capture and save error message for invalid credentials
+            cy.get('.gap-y-2').invoke('text').then((text) => {
                 let errorMessage = text.replace(/\s+/g, ' ').trim();
                 cy.log(`Credentials are wrong:  ${errorMessage}`)
-
-                //save the message to a json file  , for later use
                 cy.writeFile('cypress/fixtures/emtpyFieldsMessageWrongPassword.json', { message: errorMessage })
-             })
+            })
             break;
-
         case 'areCorrectCredentials':
+            // Attempt login with correct credentials
             logInButton()
             logInCredentials()
             break;
     }
-
 }
 
-//logOut Command
+// logOut command
+// Logs out the user and ensures redirection to the correct page
 const logOut = () => {
     cy.wait(10000)
     cy.get('.header__user-avatar').should('be.visible').click()
-    //why adding here cleare cookies - cypress is getting confused once trying to logout - searching for token json 
-    //The backend is returning an HTML page
-    //This causes the Unexpected token '<' error — which happens when Cypress (or JavaScript code inside the app) tries to parse HTML as JSON.
-    //while adding cleare cookies issue get resolved  + manual wait
+    // Clear cookies to avoid backend JSON parsing issues after logout
+    // The backend may return HTML instead of JSON, causing errors
     cy.contains('Log out').click()
     cy.clearCookies().wait(10000)
-    //ensure the url does not include the deposit url 
+    // Ensure the URL does not include the deposit page
     cy.url().should('not.eq', '/deposit')
     cy.clearCookies();
-    //ensure the url is equal to the home page url
+    // Ensure the URL is the home page for either brand
     cy.url().should((url) => {
         expect(url.startsWith(enviroments.madcasino) || url.startsWith(enviroments.slottio)).to.be.true;
       });
-      
 }
 
+// Register custom Cypress commands
 Cypress.Commands.add('logIn', logIn)
 Cypress.Commands.add('logOut', logOut)
